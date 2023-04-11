@@ -18,7 +18,7 @@
   
   <h2>Installation</h2>
   <ol>
-    <li>Clone this repository: <code>git clone https://github.com/sanusiabubkr343/cron_job.git</code></li>
+    <li>Clone this repository: <code>git clone https://github.com/sanusiabubkr343/Checklist-Cron-Job.git</code></li>
     <li>Install dependencies: <code>npm install</code></li>
     <li>Configure environment variables: Create a <code>.env</code> file in the root directory of the project, and set the following variables:<br>
       <code>MONGODB_URI=&lt;your MongoDB connection string&gt;</code></li>
