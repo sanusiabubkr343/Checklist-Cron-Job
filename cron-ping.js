@@ -1,8 +1,9 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const Checklist = require('./models/checklist')
-var cron = require('node-cron');
+var cron = require('node-cron')
 const mongoose = require('mongoose')
+
 
 //connection of mongodb
 mongoose.set('strictQuery', true)
@@ -18,7 +19,6 @@ mongoose
     console.log('Cron Job instance couldnt connect to db', err)
   })
 
-
 // *    *    *    *    *    *
 // ┬    ┬    ┬    ┬    ┬    ┬
 // │    │    │    │    │    |
@@ -30,47 +30,112 @@ mongoose
 // └───────────────────────── second (0 - 59, optional)
 
 
-
 scheduleDailyUpdate = async () => {
-    minute = 1
-      hour ='*'
-    dayOfMonth ='*'
-    month ='*'
-  dayOfWeek = '*'
-  schedule_detail = ` ${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek} `
- 
   //get all IDs whose schedule_type is daily and fetch all inspection time
   try {
-    const inspection_time_list = []
-    const quesrySet = await Checklist.find({ schedule_type: 'Daily' }).select('-__v').sort('-updatedAt _id').exec()
+    const id_and_time_list = []
+    const quesrySet = await Checklist.find({ schedule_type: 'Daily' })
+      .select('-__v')
+      .sort('-updatedAt _id')
+      .exec()
 
     quesrySet.map((Obj) => {
-      inspection_time_list.push(Obj.inspection_time)
-
+      id_and_time_list.push({
+        _id: Obj._id,
+        inspection_time: Obj.inspection_time,
+      })
     })
-   
-   
-    console.log(inspection_time_list)
-   
-   }  
-  catch (err) {
-    console.log('Error:' +err.message)
-  }
-    
-    
-  cron.schedule(schedule_detail, async () => {
-  
-    try {
-    // result = await Checklist.findOneAndUpdate({ _id: '64329b7fee203c141b9ac815' }, { is_completed: true }, { new: true })
-    // console.log("Done Updating : "+ result._id)
-    console.log('pass')
 
+    id_and_time_list.map((Obj) => {
+      var _id = Obj._id
+      var time_val = Obj.inspection_time
+      var minute = time_val.split(':')[1]
+      var hour = time_val.split(':')[0]
+      var dayOfMonth = '*'
+      var month = '*'
+      var dayOfWeek = '1-5' //monday - Friday
+      var schedule_detail = ` ${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek} `
+
+      // console.log("for id:" +_id +",has  hour :" + hour + "," + "minutes:" + minute
+      // )
+
+      cron.schedule(schedule_detail, async () => {
+        try {
+          result = await Checklist.findOneAndUpdate(
+            { _id: _id },
+            { is_completed: true },
+            { new: true },
+          )
+          console.log('---------------------');
+          console.log('Done Updating Job')
+        } catch (err) {
+          console.log('Error:' + err.message)
+        }
+      })
+    })
+  } catch (err) {
+    console.log('Error:' + err.message)
   }
-  catch (err) {
-    console.log('Error:' +err.message)
-  }
-  })
-  
 }
 
-scheduleDailyUpdate()
+scheduleWeeklyUpdate = async () => {
+  //get all IDs whose schedule_type is daily and fetch all inspection time
+  try {
+    const id_and_time_list = []
+    const quesrySet = await Checklist.find({ schedule_type: 'Weekly' })
+      .select('-__v')
+      .sort('-updatedAt _id')
+      .exec()
+
+    quesrySet.map((Obj) => {
+      id_and_time_list.push({
+        _id: Obj._id,
+        inspection_day:Obj.inspection_day,
+        inspection_time: Obj.inspection_time,
+
+      })
+    })
+
+    id_and_time_list.map((Obj) => {
+      var _id = Obj._id
+      var time_val = Obj.inspection_time
+      var minute = time_val.split(':')[1]
+      var hour = time_val.split(':')[0]
+      var dayOfMonth = '*'
+      var month = '*'
+      var dayOfWeek = (Obj.inspection_day).toUpperCase().slice(0,3) // This will give you this format (SUN or MON)
+      var schedule_detail = ` ${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek} `
+
+      // console.log("for id:" +_id +",has  hour :" + hour + "," + "minutes:" + minute
+      // )
+
+      cron.schedule(schedule_detail, async () => {
+        try {
+          result = await Checklist.findOneAndUpdate(
+            { _id: _id },
+            { is_completed: true },
+            { new: true },
+          )
+          console.log('---------------------');
+          console.log('Done Updating Job')
+        } catch (err) {
+          console.log('Error:' + err.message)
+        }
+      })
+    })
+  } catch (err) {
+    console.log('Error:' + err.message)
+  }
+}
+
+const task = () => {
+  scheduleDailyUpdate()
+  scheduleWeeklyUpdate()
+
+}
+
+
+
+
+module.exports = task
+
