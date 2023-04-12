@@ -127,10 +127,112 @@ scheduleWeeklyUpdate = async () => {
     console.log('Error:' + err.message)
   }
 }
+scheduleMonthlyUpdate = async () => {
+  //get all IDs whose schedule_type is daily and fetch all inspection time
+  try {
+    const id_and_time_list = []
+    const quesrySet = await Checklist.find({ schedule_type: 'Monthly' })
+      .select('-__v')
+      .sort('-updatedAt _id')
+      .exec()
+
+    quesrySet.map((Obj) => {
+      id_and_time_list.push({
+        _id: Obj._id,
+        inspection_dayOfMonth:Obj.inspection_date,
+        inspection_time: Obj.inspection_time,
+
+      })
+    })
+
+    id_and_time_list.map((Obj) => {
+      var _id = Obj._id
+      var time_val = Obj.inspection_time
+      var minute = time_val.split(':')[1]
+      var hour = time_val.split(':')[0]
+      var dayOfMonth = Obj.inspection_dayOfMonth
+      var month = (Obj.inspection_month.toUpperCase()).slice(0,3) //get JAN
+      var dayOfWeek = '*'
+      var schedule_detail = ` ${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek} `
+
+      // console.log("for id:" +_id +",has  hour :" + hour + "," + "minutes:" + minute
+      // )
+
+      cron.schedule(schedule_detail, async () => {
+        try {
+          result = await Checklist.findOneAndUpdate(
+            { _id: _id },
+            { is_completed: true },
+            { new: true },
+          )
+          console.log('---------------------');
+          console.log('Done Updating Job')
+        } catch (err) {
+          console.log('Error:' + err.message)
+        }
+      })
+    })
+  } catch (err) {
+    console.log('Error:' + err.message)
+  }
+}
+scheduleYearlyUpdate = async () => {
+  //get all IDs whose schedule_type is daily and fetch all inspection time
+  try {
+    const id_and_time_list = []
+    const quesrySet = await Checklist.find({ schedule_type: 'Yearly' })
+      .select('-__v')
+      .sort('-updatedAt _id')
+      .exec()
+
+    quesrySet.map((Obj) => {
+      id_and_time_list.push({
+        _id: Obj._id,
+        inspection_dayOfMonth:Obj.inspection_date,
+        inspection_time: Obj.inspection_time,
+        inspection_month : Obj.inspection_month,
+
+
+      })
+    })
+
+    id_and_time_list.map((Obj) => {
+      var _id = Obj._id
+      var time_val = Obj.inspection_time
+      var minute = time_val.split(':')[1]
+      var hour = time_val.split(':')[0]
+      var dayOfMonth = Obj.inspection_dayOfMonth
+      var month = '*'
+      var dayOfWeek = '*'
+      var schedule_detail = ` ${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek} `
+
+      // console.log("for id:" +_id +",has  hour :" + hour + "," + "minutes:" + minute
+      // )
+
+      cron.schedule(schedule_detail, async () => {
+        try {
+          result = await Checklist.findOneAndUpdate(
+            { _id: _id },
+            { is_completed: true },
+            { new: true },
+          )
+          console.log('---------------------');
+          console.log('Done Updating Job')
+        } catch (err) {
+          console.log('Error:' + err.message)
+        }
+      })
+    })
+  } catch (err) {
+    console.log('Error:' + err.message)
+  }
+}
+
 
 const task = () => {
   scheduleDailyUpdate()
   scheduleWeeklyUpdate()
+  scheduleMonthlyUpdate()
 
 }
 
