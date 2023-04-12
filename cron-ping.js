@@ -3,6 +3,7 @@ dotenv.config()
 const Checklist = require('./models/checklist')
 var cron = require('node-cron')
 const mongoose = require('mongoose')
+const { schedule } = require('agenda/dist/agenda/schedule')
 
 
 //connection of mongodb
@@ -233,6 +234,7 @@ const task = () => {
   scheduleDailyUpdate()
   scheduleWeeklyUpdate()
   scheduleMonthlyUpdate()
+  scheduleYearlyUpdate()
 
 }
 
