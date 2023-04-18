@@ -53,7 +53,7 @@ exports.createCheckList = asyncHandler(async (req, res, next) => {
     inspection_date: inspection_date,
     inspection_month: inspection_month,
     cron_expression: getCronExpression(),
-    cron_without_time_expression:cron_expression.slice(,)
+
   })
 
   const result = await newObj.save()
@@ -108,8 +108,8 @@ exports.getAllCronJob = asyncHandler(async (req, res, next) => {
   /*To check if a certain cron expression falls within the current day or date (but not necessarily the time one  can modify the format string used with the moment() function. Instead of including the minutes and hours fields, you can set them to fixed values of "0" to ignore the time portion of the cron expression. ),
   */
   // const currentDate = moment().format('0 0 D M d')
-  const currentDate  = ' 11 10 25 12 1-5 '
-  const result  = await Checklist.find({ cron_expression: currentDate }).select('-__v').sort('-updatedAt _id').exec()
+  const currentDate  = '25 12 1-5'
+  const result  = await Checklist.find({ cron_expression:{ $regex:currentDate, $options: 'i' }}).select('-__v').sort('-updatedAt _id').exec()
   return res.status(201).json({ success: 'true',data: result  })
 
 })
