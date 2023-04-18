@@ -15,6 +15,7 @@ const ChecklistSchema = new mongoose.Schema(
       type: String,
       required:true,
     },
+    cron_without_time_expression  :{ type: String },
     is_completed: { type: Boolean, default: false },
   },
   { timestamps: true },
