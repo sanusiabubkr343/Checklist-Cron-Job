@@ -13,15 +13,14 @@ const ChecklistSchema = new mongoose.Schema(
     inspection_month: { type: String },
     cron_expression: {
       type: String,
-      required:true,
+      required: true,
     },
-    cron_without_time_expression  :{ type: String },
-    is_completed: { type: Boolean, default: false },
+
+    is_active: { type: Boolean, default: false },
+    has_report_completed: { type: Boolean, default: false },
   },
   { timestamps: true },
-  { toJSON: { getters: true } }
+  { toJSON: { getters: true } },
 )
-
-
 
 module.exports = mongoose.model('Checklist', ChecklistSchema)
