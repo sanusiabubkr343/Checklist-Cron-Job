@@ -104,12 +104,12 @@ exports.updateChecklist = asyncHandler(async (req, res, next) => {
   }
   return res.status(201).json({ success: 'true', data: result })
 })
-exports.getAllCronJob = asyncHandler(async (req, res, next) => {
+exports.getAllDailyChecklist = asyncHandler(async (req, res, next) => {
   /*To check if a certain cron expression falls within the current day or date (but not necessarily the time one  can modify the format string used with the moment() function. Instead of including the minutes and hours fields, you can set them to fixed values of "0" to ignore the time portion of the cron expression. ),
   */
-  // const currentDate = moment().format('0 0 D M d')
+  // const currentDate = moment().format('D M d')
   const currentDate  = '25 12 1-5'
-  const result  = await Checklist.find({ cron_expression:{ $regex:currentDate, $options: 'i' }}).select('-__v').sort('-updatedAt _id').exec()
+  const result  = await Checklist.updateMany({ cron_expression:{ $regex:currentDate, $options: 'i' }}, { $set: {  is_active: true,has_report_completed:false }},).select('-__v').sort('-updatedAt _id').exec()
   return res.status(201).json({ success: 'true',data: result  })
 
 })
